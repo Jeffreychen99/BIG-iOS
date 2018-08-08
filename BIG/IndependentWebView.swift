@@ -10,19 +10,25 @@ import Foundation
 import UIKit
 import WebKit
 
-class IndependentWebView: UIWebView, UIWebViewDelegate {
+class IndependentWebView: UIWebView, UIWebViewDelegate { //DEPRECATED, DO NOT USE
 
     var gotCSV = false
     var requestURL = ""
     var price = 0.00
     var dayNum = 0
+    var performanceController = PerformanceController()
     
-    init(url: String, num: Int) {
+    init(url: String, num: Int, pfController: PerformanceController) {
         super.init(frame: CGRect())
         self.dayNum = num
         self.delegate = self
         requestURL = url
+        self.performanceController = pfController
+        //let mutableRequest = NSMutableURLRequest(url: URL(string: requestURL)!)
+        //let auth = ""
+        //mutableRequest.addValue(auth, forHTTPHeaderField: "asdf")
         self.loadRequest(URLRequest(url: URL(string: requestURL)!))
+        //self.loadRequest(mutableRequest as URLRequest)
     }
 
     override init(frame: CGRect) {
@@ -34,9 +40,12 @@ class IndependentWebView: UIWebView, UIWebViewDelegate {
         return price
     }
     
+    //func webViewDidFinishLoadCustom(_ webView: UIWebView, str: String?) {
     func webViewDidFinishLoad(_ webView: UIWebView) {
+        print("GOT HERE 1")
         if gotCSV {
-            getHTML(completion: convertHTMLToCSV)
+            print("GOT HERE 2")
+            getHTML()
             return
         }
         gotCSV = !gotCSV
@@ -47,12 +56,12 @@ class IndependentWebView: UIWebView, UIWebViewDelegate {
         webView.stringByEvaluatingJavaScript(from: passwordRequest)
         let submitRequest = "document.forms[0].submit()"
         webView.stringByEvaluatingJavaScript(from: submitRequest)
-        
+        //webViewDidFinishLoadCustom(webView, str: webView.stringByEvaluatingJavaScript(from: submitRequest))
     }
     
-    func getHTML(completion: (String)->Void) {
+    func getHTML() {
         let getHTML = "document.documentElement.outerHTML.toString()"
-        completion(String( self.stringByEvaluatingJavaScript(from: getHTML)! ))
+        convertHTMLToCSV(fullHTML: (String( self.stringByEvaluatingJavaScript(from: getHTML)! )))
     }
     
     func convertHTMLToCSV(fullHTML: String) {
@@ -66,7 +75,27 @@ class IndependentWebView: UIWebView, UIWebViewDelegate {
         navHTML = String(navHTML.prefix(distance))
         price = Double(navHTML)!
         print("HERE: \(price)    \(dayNum)")
+        performanceController.view.addSubview(self)
         //NAVLabel.text = "$\(String(format: "%.2f", Double(navHTML)!))"
+        checkLoadNAVVisuals()
+    }
+    
+    func checkLoadNAVVisuals() {
+        if self.dayNum == -999 {
+            PerformanceController.NAVLabel.font =  UIFont(name: "EBGaramond08-Regular", size: 75)
+            PerformanceController.NAVLabel.text = "$\(String(format: "%.2f", getPrice()))"
+            PerformanceController.currentDayNAVLoaded = true
+            return
+        }
+        
+        /**for i in PerformanceController.webViewArr {
+            if i.getPrice() == 0 {
+                return
+            }
+        }*/
+        print("loaded NAV Visuals")
+        self.performanceController.loadNAVVisuals()
+        
     }
     
     required init?(coder aDecoder: NSCoder) {

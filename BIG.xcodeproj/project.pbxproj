@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		002B041520FD92DB00D97B49 /* PerformanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 002B041420FD92DB00D97B49 /* PerformanceController.swift */; };
 		003C9C9F20B9348000C0D353 /* credentials.plist in Resources */ = {isa = PBXBuildFile; fileRef = 003C9C9E20B9348000C0D353 /* credentials.plist */; };
 		003C9CA120B93AC200C0D353 /* PortfolioController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003C9CA020B93AC200C0D353 /* PortfolioController.swift */; };
 		003EE46220FD219A00622864 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = 003EE46120FD219A00622864 /* Fonts */; };
@@ -16,9 +15,11 @@
 		00829B1420F6DE31006C7D8E /* Chart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00829B1120F6DE30006C7D8E /* Chart.swift */; };
 		00837BBE20C78079003BAC9F /* IdeasController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00837BBD20C78079003BAC9F /* IdeasController.swift */; };
 		0084F52520D75468001090D7 /* VoteController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0084F52420D75468001090D7 /* VoteController.swift */; };
+		00945509211B1A56004EAC71 /* PerformanceController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00945508211B1A55004EAC71 /* PerformanceController.swift */; };
 		00AC258620BF848F00A2DC39 /* MenuController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00AC258520BF848F00A2DC39 /* MenuController.swift */; };
 		00B5685521081AAA009084D3 /* IndependentWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00B5685421081AAA009084D3 /* IndependentWebView.swift */; };
 		00C32C6B210CE5D00081BB3A /* BivioCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00C32C6A210CE5D00081BB3A /* BivioCredentials.swift */; };
+		00EA3A1A211990D30096018D /* IndepWKWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00EA3A19211990D30096018D /* IndepWKWebView.swift */; };
 		00FDB84420B8794C00B70ED8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FDB84320B8794C00B70ED8 /* AppDelegate.swift */; };
 		00FDB84620B8794C00B70ED8 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00FDB84520B8794C00B70ED8 /* LoginController.swift */; };
 		00FDB84920B8794C00B70ED8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 00FDB84720B8794C00B70ED8 /* Main.storyboard */; };
@@ -51,7 +52,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		002B041420FD92DB00D97B49 /* PerformanceController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PerformanceController.swift; sourceTree = "<group>"; };
 		003C9C9E20B9348000C0D353 /* credentials.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = credentials.plist; sourceTree = "<group>"; };
 		003C9CA020B93AC200C0D353 /* PortfolioController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortfolioController.swift; sourceTree = "<group>"; };
 		003EE46120FD219A00622864 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Fonts; sourceTree = "<group>"; };
@@ -60,9 +60,11 @@
 		00829B1120F6DE30006C7D8E /* Chart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chart.swift; sourceTree = "<group>"; };
 		00837BBD20C78079003BAC9F /* IdeasController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IdeasController.swift; sourceTree = "<group>"; };
 		0084F52420D75468001090D7 /* VoteController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VoteController.swift; sourceTree = "<group>"; };
+		00945508211B1A55004EAC71 /* PerformanceController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PerformanceController.swift; sourceTree = "<group>"; };
 		00AC258520BF848F00A2DC39 /* MenuController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuController.swift; sourceTree = "<group>"; };
 		00B5685421081AAA009084D3 /* IndependentWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndependentWebView.swift; sourceTree = "<group>"; };
 		00C32C6A210CE5D00081BB3A /* BivioCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BivioCredentials.swift; sourceTree = "<group>"; };
+		00EA3A19211990D30096018D /* IndepWKWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndepWKWebView.swift; sourceTree = "<group>"; };
 		00FDB84020B8794B00B70ED8 /* BIG.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BIG.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		00FDB84320B8794C00B70ED8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		00FDB84520B8794C00B70ED8 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
@@ -144,10 +146,12 @@
 		00FDB84220B8794B00B70ED8 /* BIG */ = {
 			isa = PBXGroup;
 			children = (
+				00FDB84F20B8794C00B70ED8 /* Info.plist */,
 				00C32C6A210CE5D00081BB3A /* BivioCredentials.swift */,
 				00FDB84320B8794C00B70ED8 /* AppDelegate.swift */,
 				00FDD99A20F51256001795B8 /* OpenController.swift */,
-				002B041420FD92DB00D97B49 /* PerformanceController.swift */,
+				00945508211B1A55004EAC71 /* PerformanceController.swift */,
+				00EA3A19211990D30096018D /* IndepWKWebView.swift */,
 				00B5685421081AAA009084D3 /* IndependentWebView.swift */,
 				00829B1120F6DE30006C7D8E /* Chart.swift */,
 				00829B0F20F6DE30006C7D8E /* ChartColors.swift */,
@@ -161,7 +165,6 @@
 				00FDB84720B8794C00B70ED8 /* Main.storyboard */,
 				00FDB84A20B8794C00B70ED8 /* Assets.xcassets */,
 				00FDB84C20B8794C00B70ED8 /* LaunchScreen.storyboard */,
-				00FDB84F20B8794C00B70ED8 /* Info.plist */,
 			);
 			path = BIG;
 			sourceTree = "<group>";
@@ -464,14 +467,15 @@
 				00AC258620BF848F00A2DC39 /* MenuController.swift in Sources */,
 				00B5685521081AAA009084D3 /* IndependentWebView.swift in Sources */,
 				00C32C6B210CE5D00081BB3A /* BivioCredentials.swift in Sources */,
+				00945509211B1A56004EAC71 /* PerformanceController.swift in Sources */,
 				00829B1420F6DE31006C7D8E /* Chart.swift in Sources */,
 				00FDB84620B8794C00B70ED8 /* LoginController.swift in Sources */,
 				00829B1320F6DE31006C7D8E /* ChartSeries.swift in Sources */,
 				003C9CA120B93AC200C0D353 /* PortfolioController.swift in Sources */,
 				0084F52520D75468001090D7 /* VoteController.swift in Sources */,
 				00FDB84420B8794C00B70ED8 /* AppDelegate.swift in Sources */,
-				002B041520FD92DB00D97B49 /* PerformanceController.swift in Sources */,
 				00FDD99B20F51256001795B8 /* OpenController.swift in Sources */,
+				00EA3A1A211990D30096018D /* IndepWKWebView.swift in Sources */,
 				00837BBE20C78079003BAC9F /* IdeasController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

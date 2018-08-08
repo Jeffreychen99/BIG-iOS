@@ -52,6 +52,8 @@ class PortfolioController: UIViewController {
     var scrollItemList = [[UILabel]]()
     var tickerList = [[UIButton]]()
     
+    let loadingLabel = UILabel()
+    
     var updater = Timer()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -110,6 +112,13 @@ class PortfolioController: UIViewController {
         headerLine.backgroundColor = UIColor.white
         view.addSubview(headerLine)
         
+        loadingLabel.frame = CGRect(x: 0.03*width, y: 0.2*height, width: width*0.95, height: height*0.1)
+        loadingLabel.font =  UIFont(name: "EBGaramond08-Regular", size: 50)
+        loadingLabel.textColor = UIColor.white
+        loadingLabel.text = "Loading..."
+        loadingLabel.textAlignment = .center
+        self.view.addSubview(loadingLabel)
+        
         let footerLine = UILabel()
         footerLine.frame = CGRect(x: 0.03*width, y: 0.8*height, width: width*0.94, height: 3)
         footerLine.backgroundColor = UIColor.white
@@ -147,7 +156,7 @@ class PortfolioController: UIViewController {
         
         getData()
         if checkDuringTradingHours() {
-            updater = Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(getData), userInfo: nil, repeats: true)
+            updater = Timer.scheduledTimer(timeInterval: 120, target: self, selector: #selector(getData), userInfo: nil, repeats: true)
         }
     }
     
@@ -269,6 +278,7 @@ class PortfolioController: UIViewController {
         tickerList = tempTickers
         
         self.calcDailyChangePct()
+        loadingLabel.removeFromSuperview()
     }
     
     func removeListFromView() {
@@ -320,7 +330,7 @@ class PortfolioController: UIViewController {
         
             var changeString = Substring()
             if HTMLString.contains("quote-market-notice") {
-                changeString = HTMLString.suffix(75)
+                changeString = HTMLString.suffix(65)
             } else {
                 changeString = HTMLString.suffix(40)
             }
@@ -353,9 +363,27 @@ class PortfolioController: UIViewController {
         let timeDiffNY = (TimeZone.current.secondsFromGMT() / 3600) + 4
         print("TIMEDIFFNY: \(timeDiffNY)")
         
-        let openMarket = cal.date(bySettingHour: 9 + timeDiffNY, minute: 30, second: 0, of: now)!
-        let closeMarket = cal.date(bySettingHour: 16 + timeDiffNY, minute: 0, second: 0, of: now)!
-        return (openMarket <= now && now <= closeMarket)
+        let openMarket = cal.date(bySettingHour: 9, minute: 30, second: 0, of: now)!
+        let closeMarket = cal.date(bySettingHour: 16, minute: 0, second: 0, of: now)!
+        
+        let currentHour = Calendar.current.component(.hour, from: Date())
+        let currentMin = Calendar.current.component(.minute, from: Date())
+        let currentSec = Calendar.current.component(.second, from: Date())
+        
+        let NYHour = currentHour - timeDiffNY
+        print("NYHOURS: \(NYHour)")
+        
+        var NYTime = cal.date(bySettingHour: currentHour, minute: currentMin, second: currentSec, of: now)!
+        if NYHour < 0 {
+            let yesterday =  Calendar.current.date(byAdding: .day, value: -1, to: now)!
+            NYTime = cal.date(bySettingHour: 24 + NYHour, minute: currentMin, second: currentSec, of: yesterday)!
+        } else if NYHour >= 24 {
+            let tomorrow =  Calendar.current.date(byAdding: .day, value:  1, to: now)!
+            NYTime = cal.date(bySettingHour: NYHour - 24, minute: currentMin, second: currentSec, of: tomorrow)!
+        } else {
+            NYTime = cal.date(bySettingHour: NYHour, minute: currentMin, second: currentSec, of: now)!
+        }
+        return (openMarket <= NYTime && NYTime <= closeMarket)
     }
     
     func calcDailyChangePct() {

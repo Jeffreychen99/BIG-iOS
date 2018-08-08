@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 
 class OpenController: UIViewController {
     
@@ -41,7 +42,9 @@ class OpenController: UIViewController {
         setupButton(button: officerButton)
         self.view.addSubview(officerButton)
         
-        performanceController.viewDidLoad()
+        if PerformanceController.alreadyLoaded == false {
+            performanceController.viewDidLoad()
+        }
     }
     
     func setupButton(button: UIButton) {
@@ -64,7 +67,7 @@ class OpenController: UIViewController {
             loginController.viewDidLoad()
         } else if sender === infoButton {
             //let performanceController = PerformanceController()
-            performanceController.loadNAVVisuals()
+            //performanceController.loadNAVVisuals()
             self.present(performanceController, animated: true, completion: nil)
         } 
     }

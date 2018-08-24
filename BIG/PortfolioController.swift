@@ -53,6 +53,7 @@ class PortfolioController: UIViewController {
     var tickerList = [[UIButton]]()
     
     let loadingLabel = UILabel()
+    let loadingIndicator = UIActivityIndicatorView()
     
     var updater = Timer()
     override func viewDidLoad() {
@@ -118,6 +119,11 @@ class PortfolioController: UIViewController {
         loadingLabel.text = "Loading..."
         loadingLabel.textAlignment = .center
         self.view.addSubview(loadingLabel)
+        
+        loadingIndicator.frame = CGRect(x: 0.3*width, y: 0.3*height, width: width*0.4, height: height*0.1)
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.startAnimating()
+        self.view.addSubview(loadingIndicator)
         
         let footerLine = UILabel()
         footerLine.frame = CGRect(x: 0.03*width, y: 0.8*height, width: width*0.94, height: 3)
@@ -278,6 +284,7 @@ class PortfolioController: UIViewController {
         tickerList = tempTickers
         
         self.calcDailyChangePct()
+        loadingIndicator.stopAnimating()
         loadingLabel.removeFromSuperview()
     }
     
@@ -330,7 +337,9 @@ class PortfolioController: UIViewController {
         
             var changeString = Substring()
             if HTMLString.contains("quote-market-notice") {
-                changeString = HTMLString.suffix(65)
+                changeString = HTMLString.suffix(90)
+                changeString = HTMLString.suffix(50)
+                //changeString = changeString.prefix(40)
             } else {
                 changeString = HTMLString.suffix(40)
             }
@@ -567,16 +576,6 @@ class PortfolioController: UIViewController {
         totalAUMLabel.text = "AUM:   \(totalAssets)"
         var dailyAUMGainVal = Double(dailyAUMGain.substring(to:dailyAUMGain.index(dailyAUMGain.startIndex, offsetBy: 4)))
         var totalAUMGainVal = Double(totalAUMGain.substring(to:totalAUMGain.index(totalAUMGain.startIndex, offsetBy: 4)))
-        /**if dailyAUMGain == "Loading..." {
-            dailyAUMGainVal = 0.1
-        }
-        if dailyAUMGainVal as! Double > 0.0 {
-            //dailyGainLabel.text = "+\(dailyAUMGain)"
-            dailyGainLabel.backgroundColor = green 
-        } else {
-            dailyGainLabel.text = "\(dailyAUMGain)"
-            dailyGainLabel.backgroundColor = red
-        }*/
         
         if totalAUMGain == "Loading..." {
             totalAUMGainVal = 0.1

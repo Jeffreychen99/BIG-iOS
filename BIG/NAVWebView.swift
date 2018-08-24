@@ -1,5 +1,5 @@
 //
-//  IndepWKWebView.swift
+//  NAVWebView.swift
 //  BIG
 //
 //  Created by Jeffrey Chen on 8/7/18.
@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import WebKit
 
-class IndepWKWebView: WKWebView, WKNavigationDelegate {
+class NAVWebView: WKWebView, WKNavigationDelegate {
 
     var gotCSV = false
     var requestURL = ""
@@ -73,7 +73,7 @@ class IndepWKWebView: WKWebView, WKNavigationDelegate {
         if dayNum != -999 {
             PerformanceController.navArr[dayNum] = price
         }
-        print("HERE: \(price)    \(dayNum)")
+        print("NAVLoad: \(price)    \(dayNum)")
         performanceController.view.addSubview(self)
         //NAVLabel.text = "$\(String(format: "%.2f", Double(navHTML)!))"
         checkLoadNAVVisuals()
@@ -87,20 +87,22 @@ class IndepWKWebView: WKWebView, WKNavigationDelegate {
             return
         }
         
-        if dayNum >= PerformanceController.navDates.count {
+        if dayNum >= PerformanceController.dates.count {
             print("loaded NAV Visuals")
             PerformanceController.alreadyLoaded = true
+            PerformanceController.NAVloaded = true
             self.performanceController.loadNAVVisuals()
             return
         } else {
             dayNum += 1
-            if dayNum >= PerformanceController.navDates.count {
+            if dayNum >= PerformanceController.dates.count {
                 print("loaded NAV Visuals")
                 PerformanceController.alreadyLoaded = true
+                PerformanceController.NAVloaded = true
                 self.performanceController.loadNAVVisuals()
                 return
             } 
-            let dateString = PerformanceController.navDates[dayNum]
+            let dateString = PerformanceController.dates[dayNum]
             requestURL = "https://www.bivio.com/get-csv/berkeley/accounting/reports/valuation.csv?date=\(dateString)"
             self.load(URLRequest(url: URL(string: requestURL)!))
         }

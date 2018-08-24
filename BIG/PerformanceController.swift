@@ -6,6 +6,7 @@
 //  Copyright © 2018 Jeffrey Chen. All rights reserved.
 //
 
+
 import Foundation
 import UIKit
 import Alamofire
@@ -18,21 +19,40 @@ class PerformanceController: UIViewController {
     static var alreadyLoaded = false
     static var currentDayNAVLoaded = false
     
-    var webView: IndepWKWebView?
+    var webViewNAV: NAVWebView?
+    var webViewSP: SPWebView?
+    var webViewACWI: ACWIWebView?
     
-    var navHTML = ""
-    //static var webViewArr = [IndepWKWebView](repeating: IndepWKWebView(), count: 5)
+    static var NAVloaded = false
+    static var SPloaded = false
+    static var ACWIloaded = false
+    
+    let activityIndicator = UIActivityIndicatorView()
+    
     static var navArr = [Double](repeating: 0.0, count: 5)
-    static var navDates = [String](repeating: "", count: 5)
+    static var spArr = [Double](repeating: 0.0, count: 5)
+    static var acwiArr = [Double](repeating: 0.0, count: 5)
+    
+    static var dates = [String](repeating: "", count: 5)
     static let NAVLabel = UILabel()
     
     var graphDays = 5
     let NAVGraph = Chart()
     
+    let loadingIndicator = UIActivityIndicatorView()
+    
     let weekButton = UIButton()
     let monthButton = UIButton()
-    let yearButton = UIButton()
-    let inceptionButton = UIButton()
+    let oneYearButton = UIButton()
+    let threeYearButton = UIButton()
+    let fiveYearButton = UIButton()
+    
+    let navButton = UIButton()
+    var showNAV = true
+    let spButton = UIButton()
+    var showSP = false
+    let acwiButton = UIButton()
+    var showACWI = false
     
     let backButton = UIButton()
     
@@ -75,23 +95,47 @@ class PerformanceController: UIViewController {
         NAVGraph.layer.borderWidth = 2
         self.view.addSubview(NAVGraph)
         
-        weekButton.frame = CGRect(x: width*0.05, y: height*0.675, width: width*0.18, height: height*0.05)
+        weekButton.frame = CGRect(x: width*0.05, y: height*0.675, width: width*0.14, height: height*0.05)
         weekButton.setTitle("1w", for: .normal)
         setupButton(button: weekButton)
         
-        monthButton.frame = CGRect(x: width*0.29, y: height*0.675, width: width*0.18, height: height*0.05)
+        monthButton.frame = CGRect(x: width*0.24, y: height*0.675, width: width*0.14, height: height*0.05)
         monthButton.setTitle("1m", for: .normal)
         setupButton(button: monthButton)
         
-        yearButton.frame = CGRect(x: width*0.53, y: height*0.675, width: width*0.18, height: height*0.05)
-        yearButton.setTitle("1y", for: .normal)
-        setupButton(button: yearButton)
+        oneYearButton.frame = CGRect(x: width*0.43, y: height*0.675, width: width*0.14, height: height*0.05)
+        oneYearButton.setTitle("1y", for: .normal)
+        setupButton(button: oneYearButton)
         
-        inceptionButton.frame = CGRect(x: width*0.77, y: height*0.675, width: width*0.18, height: height*0.05)
-        inceptionButton.setTitle("All", for: .normal)
-        setupButton(button: inceptionButton)
+        threeYearButton.frame = CGRect(x: width*0.62, y: height*0.675, width: width*0.14, height: height*0.05)
+        threeYearButton.setTitle("3y", for: .normal)
+        setupButton(button: threeYearButton)
         
-        backButton.frame = CGRect(x: width*0.3, y: height*0.85, width: width*0.4, height: height*0.045)
+        fiveYearButton.frame = CGRect(x: width*0.81, y: height*0.675, width: width*0.14, height: height*0.05)
+        fiveYearButton.setTitle("5y", for: .normal)
+        setupButton(button: fiveYearButton)
+        
+        
+        navButton.frame = CGRect(x: width*0.05, y: height*0.75, width: width*0.27, height: height*0.05)
+        navButton.setTitle("NAV", for: .normal)
+        setupButton(button: navButton)
+        
+        spButton.frame = CGRect(x: width*0.365, y: height*0.75, width: width*0.27, height: height*0.05)
+        spButton.setTitle("S&P 500", for: .normal)
+        setupButton(button: spButton)
+        
+        acwiButton.frame = CGRect(x: width*0.68, y: height*0.75, width: width*0.27, height: height*0.05)
+        acwiButton.setTitle("ACWI", for: .normal)
+        setupButton(button: acwiButton)
+        
+        activityIndicator.frame = CGRect(x: width*0.3, y: height*0.825, width: width*0.4, height: height*0.05)
+        if !PerformanceController.NAVloaded && !PerformanceController.SPloaded && !PerformanceController.ACWIloaded {
+            activityIndicator.startAnimating()
+            activityIndicator.hidesWhenStopped = true
+            self.view.addSubview(activityIndicator)
+        }
+        
+        backButton.frame = CGRect(x: width*0.3, y: height*0.905, width: width*0.4, height: height*0.045)
         backButton.layer.borderWidth = 1
         backButton.layer.borderColor = UIColor.white.cgColor
         backButton.backgroundColor = UIColor.black
@@ -107,8 +151,13 @@ class PerformanceController: UIViewController {
         
         makeButtonLight(button: weekButton)
         makeButtonDark(button: monthButton)
-        makeButtonDark(button: yearButton)
-        makeButtonDark(button: inceptionButton)
+        makeButtonDark(button: oneYearButton)
+        makeButtonDark(button: threeYearButton)
+        makeButtonDark(button: fiveYearButton)
+        
+        makeButtonLight(button: navButton)
+        webViewACWI = ACWIWebView(pfController: self)
+        webViewSP = SPWebView(pfController: self)
     }
     
     func getCurrentNAV() {
@@ -117,29 +166,30 @@ class PerformanceController: UIViewController {
         let dateString = formatter.string(from: Date())
         let url = "https://www.bivio.com/get-csv/berkeley/accounting/reports/valuation.csv?date=\(dateString)"
         //let a = IndependentWebView(url: url, num: -999, pfController: self)
-        let a = IndepWKWebView(url: url, num: -999, pfController: self)
+        let a = NAVWebView(url: url, num: -999, pfController: self)
         self.view.addSubview(a)
     }
     
     func loadNAVData() {
         var weekEndDiff = 0
         let startDate = Date()
-        var increment = Int (floor( Double(graphDays) / 52.0 ) )
+        //startDate = Calendar.current.date(byAdding: .day, value: -1, to: startDate)!
+        var increment = Int (floor( Double(graphDays) / Double(PerformanceController.navArr.count) ) )
         if increment < 1 {
             increment = 1
         }
-        for j in 0...PerformanceController.navDates.count - 1 {
+        for j in 0...PerformanceController.dates.count - 1 {
             let i = j * increment
             
-            let arrIndex = PerformanceController.navDates.count - 1 - j
+            let arrIndex = PerformanceController.dates.count - 1 - j
         
             let formatter = DateFormatter()
             formatter.dateFormat = "MM/dd/yyyy"
             var date = Calendar.current.date(byAdding: .day, value: i * -1, to: startDate)!
             
             let myCalendar = Calendar(identifier: .gregorian)
-            var weekDay = myCalendar.component(.weekday, from: date)
             date = Calendar.current.date(byAdding: .day, value: weekEndDiff * -1, to: date)!
+            var weekDay = myCalendar.component(.weekday, from: date)
             if weekDay == 1 {
                 date = Calendar.current.date(byAdding: .day, value: -1, to: date)!
                 weekEndDiff += 1
@@ -150,43 +200,76 @@ class PerformanceController: UIViewController {
                 weekEndDiff += 1
             }
             let dateString = formatter.string(from: date)
-            PerformanceController.navDates[arrIndex] = dateString
-            print(dateString)
+            PerformanceController.dates[arrIndex] = dateString
+            print("\(dateString)    \(myCalendar.component(.weekday, from: date))")
         
             //PerformanceController.webViewArr[arrIndex] = IndependentWebView(url: url, num: arrIndex, pfController: self)
         }
-        let url = "https://www.bivio.com/get-csv/berkeley/accounting/reports/valuation.csv?date=\(PerformanceController.navDates[0])"
-        webView = IndepWKWebView(url: url, num: 0, pfController: self)
-        self.view.addSubview(webView!)
+        let url = "https://www.bivio.com/get-csv/berkeley/accounting/reports/valuation.csv?date=\(PerformanceController.dates[0])"
+        webViewNAV = NAVWebView(url: url, num: 0, pfController: self)
+        self.view.addSubview(webViewNAV!)
         print()
-        
-        /**PerformanceController.webViewArr[0].frame = CGRect(x: 0, y: 0, width: self.view.frame.width, height: self.view.frame.height)
-        self.view.addSubview(PerformanceController.webViewArr[0])
-        self.view.addSubview(monthButton)
-        self.view.addSubview(yearButton)*/
     }
     
     func loadNAVVisuals() {
-        /**if !PerformanceController.alreadyLoaded {
-            PerformanceController.alreadyLoaded = true
-            for (i, webView) in PerformanceController.webViewArr.enumerated() {
-                PerformanceController.navArr[i] = webView.getPrice()
-                print(PerformanceController.navArr[i])
-            }
-        }*/
+        if !PerformanceController.NAVloaded { print("NOT ALL NAV") }
+        if !PerformanceController.SPloaded { print("NOT ALL SP") }
+        if !PerformanceController.ACWIloaded { print("NOT ALL ACWI") }
         
-        NAVGraph.removeAllSeries()
-        
-        let series = ChartSeries(PerformanceController.navArr)
-        if (PerformanceController.navArr.last! >= PerformanceController.navArr.first!) {
-            series.colors = (above: ChartColors.greenColor(), below: ChartColors.blueColor(), zeroLevel: 0)
-        } else {
-            series.colors = (above: ChartColors.redColor(), below: ChartColors.blueColor(), zeroLevel: 0)
+        if PerformanceController.NAVloaded && PerformanceController.SPloaded && PerformanceController.ACWIloaded {
+            activityIndicator.stopAnimating()
         }
-        series.area = true
-        NAVGraph.add(series)
+    
+        NAVGraph.removeAllSeries()
+        let moreThanOne = (showNAV && showSP) || (showNAV && showACWI) || (showSP && showACWI)
         
-        let increment = floor( Double(PerformanceController.navDates.count) / 5.0 )
+        if showNAV && PerformanceController.NAVloaded {
+            var NAVSeries = ChartSeries(PerformanceController.navArr)
+            if moreThanOne {
+                var percentNAVArr = [Double]()
+                for i in PerformanceController.navArr {
+                    percentNAVArr.append( i / PerformanceController.navArr.max()!)
+                }
+                NAVSeries = ChartSeries(percentNAVArr)
+            }
+            if (PerformanceController.navArr.last! >= PerformanceController.navArr.first!) {
+                NAVSeries.colors = (above: ChartColors.greenColor(), below: ChartColors.greenColor(), zeroLevel: 0)
+            } else {
+                NAVSeries.colors = (above: ChartColors.darkRedColor(), below: ChartColors.darkRedColor(), zeroLevel: 0)
+            }   
+            NAVSeries.area = true
+            NAVGraph.add(NAVSeries)
+        }
+        
+        if showSP && PerformanceController.SPloaded {
+            var SPSeries = ChartSeries(PerformanceController.spArr)
+            if moreThanOne {
+                var percentSP = [Double]()
+                for i in PerformanceController.spArr {
+                    percentSP.append( i / PerformanceController.spArr.max()!)
+                }
+                SPSeries = ChartSeries(percentSP)
+            }
+            SPSeries.colors = (above: ChartColors.cyanColor(), below: ChartColors.cyanColor(), zeroLevel: 0)
+            SPSeries.area = true
+            NAVGraph.add(SPSeries)
+        }
+        
+       if showACWI && PerformanceController.ACWIloaded {
+            var ACWISeries = ChartSeries(PerformanceController.acwiArr)
+            if moreThanOne {
+                var percentACWI = [Double]()
+                for i in PerformanceController.acwiArr {
+                    percentACWI.append( i / PerformanceController.acwiArr.max()!)
+                }
+                ACWISeries = ChartSeries(percentACWI)
+            }
+            ACWISeries.colors = (above: ChartColors.pinkColor(), below: ChartColors.pinkColor(), zeroLevel: 0)
+            ACWISeries.area = true
+            NAVGraph.add(ACWISeries)
+        }
+        
+        let increment = floor( Double(PerformanceController.dates.count) / 5.0 )
         print("INCREMENT: \(increment)")
         NAVGraph.xLabels = [0, increment, 2*increment, 3*increment, 4*increment]
         
@@ -200,7 +283,7 @@ class PerformanceController: UIViewController {
     }
     
     func xLabelsFormat(i: Int, d: Double) -> String {
-        var dateString = String(PerformanceController.navDates[ Int(d) ] )
+        var dateString = String(PerformanceController.dates[ Int(d) ] )
         if graphDays > 30 {
             var month = dateString.prefix(2)
             if month.prefix(1) == "0" {
@@ -217,6 +300,7 @@ class PerformanceController: UIViewController {
     }
     
     func yLabelsFormat(i: Int, d: Double) -> String {
+        if (showNAV && showSP) || (showNAV && showACWI) || (showSP && showACWI) { return "" }
         return "\(String(format: "%.2f", d))"
     }
     
@@ -261,51 +345,129 @@ class PerformanceController: UIViewController {
         } else if sender === weekButton {
             makeButtonLight(button: weekButton)
             makeButtonDark(button: monthButton)
-            makeButtonDark(button: yearButton)
-            makeButtonDark(button: inceptionButton)
+            makeButtonDark(button: oneYearButton)
+            makeButtonDark(button: threeYearButton)
+            makeButtonDark(button: fiveYearButton)
             
-            webView!.removeFromSuperview()
+            webViewNAV!.removeFromSuperview()
             PerformanceController.alreadyLoaded = false
+            PerformanceController.NAVloaded = false
+            PerformanceController.SPloaded = false
+            PerformanceController.ACWIloaded = false
             self.graphDays = 5
+            PerformanceController.dates = [String](repeating: "", count: 5)
             PerformanceController.navArr = [Double](repeating: 0.0, count: 5)
-            PerformanceController.navDates = [String](repeating: "", count: 5)
+            PerformanceController.spArr = [Double](repeating: 0.0, count: 5)
+            PerformanceController.acwiArr = [Double](repeating: 0.0, count: 5)
+            webViewSP?.load(URLRequest(url: URL(string: "https://quotes.wsj.com/index/SPX/historical-prices")!))
+            webViewACWI?.load(URLRequest(url: URL(string: "https://www.nasdaq.com/symbol/acwi/historical")!))
             loadNAVData()
+            activityIndicator.startAnimating()
         } else if sender === monthButton {
             makeButtonDark(button: weekButton)
             makeButtonLight(button: monthButton)
-            makeButtonDark(button: yearButton)
-            makeButtonDark(button: inceptionButton)
-            
-            webView!.removeFromSuperview()
+            makeButtonDark(button: oneYearButton)
+            makeButtonDark(button: threeYearButton)
+            makeButtonDark(button: fiveYearButton)
+             
+            webViewNAV!.removeFromSuperview()
             PerformanceController.alreadyLoaded = false
-            self.graphDays = 25
-            PerformanceController.navArr = [Double](repeating: 0.0, count: 25)
-            PerformanceController.navDates = [String](repeating: "", count: 25)
+            PerformanceController.NAVloaded = false
+            PerformanceController.SPloaded = false
+            PerformanceController.ACWIloaded = false
+            self.graphDays = 20
+            PerformanceController.dates = [String](repeating: "", count: 20)
+            PerformanceController.navArr = [Double](repeating: 0.0, count: 20)
+            PerformanceController.spArr = [Double](repeating: 0.0, count: 20)
+            PerformanceController.acwiArr = [Double](repeating: 0.0, count: 20)
+            webViewSP?.load(URLRequest(url: URL(string: "https://quotes.wsj.com/index/SPX/historical-prices")!))
+            webViewACWI?.load(URLRequest(url: URL(string: "https://www.nasdaq.com/symbol/acwi/historical")!))
             loadNAVData()
-        } else if sender === yearButton {
+            activityIndicator.startAnimating()
+        } else if sender === oneYearButton {
             makeButtonDark(button: weekButton)
             makeButtonDark(button: monthButton)
-            makeButtonLight(button: yearButton)
-            makeButtonDark(button: inceptionButton)
+            makeButtonLight(button: oneYearButton)
+            makeButtonDark(button: threeYearButton)
+            makeButtonDark(button: fiveYearButton)
             
-            webView!.removeFromSuperview()
+            webViewNAV!.removeFromSuperview()
             PerformanceController.alreadyLoaded = false
+            PerformanceController.NAVloaded = false
+            PerformanceController.SPloaded = false
+            PerformanceController.ACWIloaded = false
             self.graphDays = 365
+            PerformanceController.dates = [String](repeating: "", count: 52)
             PerformanceController.navArr = [Double](repeating: 0.0, count: 52)
-            PerformanceController.navDates = [String](repeating: "", count: 52)
+            PerformanceController.spArr = [Double](repeating: 0.0, count: 52)
+            PerformanceController.acwiArr = [Double](repeating: 0.0, count: 52)
+            webViewSP?.load(URLRequest(url: URL(string: "https://quotes.wsj.com/index/SPX/historical-prices")!))
+            webViewACWI?.load(URLRequest(url: URL(string: "https://www.nasdaq.com/symbol/acwi/historical")!))
             loadNAVData()
-        } else if sender === inceptionButton {
+            activityIndicator.startAnimating()
+        } else if sender === threeYearButton {
             makeButtonDark(button: weekButton)
             makeButtonDark(button: monthButton)
-            makeButtonDark(button: yearButton)
-            makeButtonLight(button: inceptionButton)
+            makeButtonDark(button: oneYearButton)
+            makeButtonLight(button: threeYearButton)
+            makeButtonDark(button: fiveYearButton)
             
-            webView!.removeFromSuperview()
+            webViewNAV!.removeFromSuperview()
             PerformanceController.alreadyLoaded = false
-            self.graphDays = 365
-            PerformanceController.navArr = [Double](repeating: 0.0, count: 52)
-            PerformanceController.navDates = [String](repeating: "", count: 52)
+            PerformanceController.NAVloaded = false
+            PerformanceController.SPloaded = false
+            PerformanceController.ACWIloaded = false
+            self.graphDays = 1095
+            PerformanceController.dates = [String](repeating: "", count: 60)
+            PerformanceController.navArr = [Double](repeating: 0.0, count: 60)
+            PerformanceController.spArr = [Double](repeating: 0.0, count: 60)
+            PerformanceController.acwiArr = [Double](repeating: 0.0, count: 60)
+            webViewSP?.load(URLRequest(url: URL(string: "https://quotes.wsj.com/index/SPX/historical-prices")!))
+            webViewACWI?.load(URLRequest(url: URL(string: "https://www.nasdaq.com/symbol/acwi/historical")!))
             loadNAVData()
+            activityIndicator.startAnimating()
+        } else if sender === fiveYearButton {
+            makeButtonDark(button: weekButton)
+            makeButtonDark(button: monthButton)
+            makeButtonDark(button: oneYearButton)
+            makeButtonDark(button: threeYearButton)
+            makeButtonLight(button: fiveYearButton)
+            
+            webViewNAV!.removeFromSuperview()
+            PerformanceController.alreadyLoaded = false
+            PerformanceController.NAVloaded = false
+            PerformanceController.SPloaded = false
+            PerformanceController.ACWIloaded = false
+            self.graphDays = 1825
+            PerformanceController.dates = [String](repeating: "", count: 60)
+            PerformanceController.navArr = [Double](repeating: 0.0, count: 60)
+            PerformanceController.spArr = [Double](repeating: 0.0, count: 60)
+            PerformanceController.acwiArr = [Double](repeating: 0.0, count: 60)
+            webViewSP?.load(URLRequest(url: URL(string: "https://quotes.wsj.com/index/SPX/historical-prices")!))
+            webViewACWI?.load(URLRequest(url: URL(string: "https://www.nasdaq.com/symbol/acwi/historical")!))
+            loadNAVData()
+            activityIndicator.startAnimating()
+        } else if sender === navButton {
+            makeButtonLight(button: navButton)
+            if showNAV {
+                makeButtonDark(button: navButton)
+            }
+            showNAV = !showNAV
+            loadNAVVisuals()
+        } else if sender === spButton {
+            makeButtonLight(button: spButton)
+            if showSP {
+                makeButtonDark(button: spButton)
+            }
+            showSP = !showSP
+            loadNAVVisuals()
+        } else if sender === acwiButton {
+            makeButtonLight(button: acwiButton)
+            if showACWI {
+                makeButtonDark(button: acwiButton)
+            } 
+            showACWI = !showACWI
+            loadNAVVisuals()
         }
     }
     

@@ -312,8 +312,9 @@ class PortfolioController: UIViewController {
 
         do {
             var HTMLString = try String(contentsOf: myURL, encoding: .ascii)
-            let range = HTMLString.range(of: "Trsdu(0.3s) Fw(b)")!
-            let endPos = HTMLString.distance(from: HTMLString.startIndex, to: range.upperBound)
+            let range = HTMLString.range(of: "Trsdu(0.3s) Fw(b)")
+            if (range == nil) { print(ticker); print(HTMLString) }
+            let endPos = HTMLString.distance(from: HTMLString.startIndex, to: range!.upperBound)
             if checkDuringTradingHours() {
                 HTMLString = "\(HTMLString.prefix(endPos + 201))"
                 HTMLString = "\(HTMLString.suffix(176))"
@@ -338,7 +339,9 @@ class PortfolioController: UIViewController {
             var changeString = Substring()
             if HTMLString.contains("quote-market-notice") {
                 changeString = HTMLString.suffix(90)
-                changeString = HTMLString.suffix(50)
+                if changeString.suffix(50).contains("%") {
+                    changeString = HTMLString.suffix(50)
+                }
                 //changeString = changeString.prefix(40)
             } else {
                 changeString = HTMLString.suffix(40)
@@ -493,7 +496,7 @@ class PortfolioController: UIViewController {
     @objc func getData() {
         print("Got here GET DATA 1")
         let spreadsheetId = "1FUYLvdT2lTmNXQODnfX0SyMbqbHg9geu_qozBmQfbCE" // Portfolio
-        let range = "B7:O"
+        let range = "C7:O"
         print("Got here GET DATA 2")
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         print("Got here GET DATA 3")
@@ -531,11 +534,12 @@ class PortfolioController: UIViewController {
         completeData = result.values!
         
         for i in 0...completeData.count - 1 {
-            let ticker = completeData[i][0] as! String
+            let ticker = (completeData[i][0] as! String)
+            print("\nROW: \(completeData[i])")
             if ticker == "Total " {
                 break
             }
-            if (ticker != " Short Portfolio" && ticker != "Cash") {
+            if (!ticker.contains("Short") && !ticker.contains("Cash") && !ticker.contains("Total")) {
                 getBackupStockData(ticker: ticker, numStock: i)
             }
         }
@@ -545,8 +549,8 @@ class PortfolioController: UIViewController {
         var tempShortList = [[Any]]()
 
         for row in completeData {
-            if (row[0] as! String) != "Cash" && (row[0] as! String) != "Total " {
-                if (row[0] as! String) == "  Short Portfolio" {
+            if !(row[0] as! String).contains("Cash") && !(row[0] as! String).contains("Total") {
+                if (row[0] as! String).contains("Short") {
                     longBool = false
                 } else {
                     if longBool {
@@ -554,7 +558,7 @@ class PortfolioController: UIViewController {
                     } else {
                         tempShortList.append(row)
                     }
-                    print("\(row[0] as! String): \(row[6] as! String)")
+                    print("\(row[0] as! String): \(row[6] as! String) \n")
                 }
             }
             if (row[0] as! String) == "Cash" {

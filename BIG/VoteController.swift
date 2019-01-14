@@ -310,14 +310,14 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
 
     func getVoteCalc() {
         let spreadsheetId = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Vote Calc - Summer '18!B3:M"
+        let range = "Vote Calc - Spring '19!B3:M"
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         service.executeQuery(query, delegate: self, didFinish: #selector(displayVotesWithTicket(ticket:finishedWithObject:error:)))
     }
 
     func getVoteRecord() {
         let spreadsheetId = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Record - Summer '18!B2:AR"
+        let range = "Record - Spring '19!B2:AR"
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         service.executeQuery(query, delegate: self, didFinish: #selector(displayRecordWithTicket(ticket:finishedWithObject:error:)))
     }
@@ -335,8 +335,9 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
             return
         }
         
-        townHallsHeldLabel.text = "Town Halls:  \(data[1][10])"
-        votesHeldLabel.text = "Votes Held:  \(data[0][10])"
+        print(data)
+        townHallsHeldLabel.text = "Town Halls:  \(data[1][9])"
+        votesHeldLabel.text = "Votes Held:  \(data[0][9])"
         for i in 3...(data.count - 1) {
             if (data[i][0] as! String == name) {
                 userVotingData = data[i]
@@ -344,11 +345,11 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
                 memosField.text = "\(data[i][2])"
                 pitchesField.text = "\(data[i][3])"
                 updatesField.text = "\(data[i][4])"
-                userVotes.text = "Your Votes:  \(data[i][5])          Representation:  \(data[i][7])"
+                userVotes.text = "Your Votes:  \(data[i][4])          Representation:  \(data[i][6])"
             }
             if (data[i][0] as! String == "Average") {
-                averageVotesLabel.text = "Average Votes per Officer:     \(data[i][5])"
-                averageRepLabel.text = "Average Representation per Officer:     \(data[i][7])"
+                averageVotesLabel.text = "Average Votes per Officer:     \(data[i][4])"
+                averageRepLabel.text = "Average Representation per Officer:     \(data[i][6])"
                 self.view.addSubview(averageVotesLabel)
                 self.view.addSubview(averageRepLabel)
             }
@@ -500,7 +501,7 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
     
     func writeVote(vote: Int) {
         let sheetID = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Record%20-%20Summer%20'18!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
+        let range = "Record%20-%Spring%20'19!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         //range = "Record - Summer '18!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         let requestParams = [
             "values": [ 
@@ -602,7 +603,7 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
     func changeParticipation(value: Int, option: Int) {
         // 2 == TH   3 == Memo   4 == Pitch   5 == Update
         let sheetID = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Vote%20Calc%20-%20Summer%20'18!\(numToLetter(numCol: option))\(userVoteRow + 2)"
+        let range = "Vote%20Calc%20-%Spring%20'19!\(numToLetter(numCol: option))\(userVoteRow + 2)"
         //range = "Record - Summer '18!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         let requestParams = [
             "values": [ 
@@ -624,21 +625,21 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
             chooseReject(_: rejectButton)
             writeVote(vote: -1)
             recordData[userVoteRow][pageControl.currentPage + 2] = -1
-            usleep(250000)
+            usleep(500000)
             getVoteRecord()
         }
         if sender === abstainButton {
             chooseAbstain(_: abstainButton)
             writeVote(vote: 0)
             recordData[userVoteRow][pageControl.currentPage + 2] = 0
-            usleep(250000)
+            usleep(500000)
             getVoteRecord()
         }
         if sender === passButton {
             choosePass(_: passButton)
             writeVote(vote: 1)
             recordData[userVoteRow][pageControl.currentPage + 2] = 1
-            usleep(250000)
+            usleep(500000)
             getVoteRecord()
         }
     }

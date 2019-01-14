@@ -79,6 +79,8 @@ class PerformanceController: UIViewController {
         divider.frame = CGRect(x: 0.05*width, y: 0.13*height, width: width*0.9, height: 2)
         divider.backgroundColor = UIColor.white
         self.view.addSubview(divider)
+        
+        loadNAVVisuals()
             
         if PerformanceController.currentDayNAVLoaded == false {
             PerformanceController.NAVLabel.frame = CGRect(x: 0.05*width, y: 0.135*height, width: width*0.9, height: height*0.14)

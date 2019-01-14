@@ -42,9 +42,9 @@ class OpenController: UIViewController {
         setupButton(button: officerButton)
         self.view.addSubview(officerButton)
         
-        if PerformanceController.alreadyLoaded == false {
+        /*if PerformanceController.alreadyLoaded == false {
             performanceController.viewDidLoad()
-        }
+        }*/
     }
     
     func setupButton(button: UIButton) {

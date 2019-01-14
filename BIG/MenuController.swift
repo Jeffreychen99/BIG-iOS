@@ -172,7 +172,7 @@ class MenuController: UIViewController, UIPickerViewDataSource, UIPickerViewDele
 
     func getData() {
         let spreadsheetId = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo" // Voting
-        let range = "Vote Calc - Summer '18!B6:C"
+        let range = "Vote Calc - Spring '19!B6:C"
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         service.executeQuery(query, delegate: self, didFinish: #selector(displayResultWithTicket(ticket:finishedWithObject:error:)))
     }

@@ -58,17 +58,19 @@ class SPWebView: WKWebView, WKNavigationDelegate {
         getHTML(result: nil, error: nil)
     }
     
+    var notUpdated = 0;
     func getHTML(result: Any?, error: Error?) {
         let getHTMLString = "document.documentElement.outerHTML.toString()"
         self.evaluateJavaScript(getHTMLString, completionHandler: { (html: Any?, error: Error?) in
-            let month = PerformanceController.dates[0].prefix(2)
-            let day = PerformanceController.dates[0].prefix(5).suffix(2)
-            let year = PerformanceController.dates[0].suffix(2)
+            let month = PerformanceController.dates[self.notUpdated].prefix(2)
+            let day = PerformanceController.dates[self.notUpdated].prefix(5).suffix(2)
+            let year = PerformanceController.dates[self.notUpdated].suffix(2)
             let WSJDate = "\(month)/\(day)/\(year)"
             if (html as! String).contains(WSJDate) {
                 self.convertHTMLToCSV(HTMLString: html as! String)
             } else {
                 print("WSJ S&P NOT YET UPDATED... \(WSJDate)")
+                self.notUpdated = 1;
                 //print(html as! String)
                 //self.getHTML(result: nil, error: nil)
             }
@@ -84,7 +86,7 @@ class SPWebView: WKWebView, WKNavigationDelegate {
         HTML = String( HTML.suffix(suffixDist) )
         
         var endRange = HTML.range(of: "</div></div> <div class=\"nav-right\">")
-        if endRange == nil { print("************** Endrange **************"); print(HTML); endRange = HTML.range(of: "</tr> </tbody> </table>") }
+        if endRange == nil { print("************** Cought Missing Endrange **************"); endRange = HTML.range(of: "</tr> </tbody> </table>") }
         let prefixDist = HTML.distance(from: HTML.startIndex, to: endRange!.lowerBound)
         HTML = String( HTML.prefix(prefixDist) )
         
@@ -100,13 +102,15 @@ class SPWebView: WKWebView, WKNavigationDelegate {
                 let endLine = HTML.range(of: "</td>")
                 let lineDist = HTML.distance(from: HTML.startIndex, to: endLine!.lowerBound)
                 let datum = String( HTML.prefix(lineDist) )
-                //print("THIS IS DATUM: \(datum)   DIVDIST: \(divDist)")
+                //print("Datum: \(datum)")
                 if i == 0 {
-                    let date = datum as! String
+                    let date = datum
                     let modDate = "\(date.prefix(date.count - 2))20\(date.suffix(2))"
                     arr.append(modDate)
                 } else {
-                    arr.append( Double(datum)! )
+                    if Double(datum) == nil { print("i = \(i)"); print(datum) } else {
+                        arr.append( Double(datum)! )
+                    }
                 }
                 let nextLine = HTML.range(of: "<td>")
                 if nextLine == nil { break }

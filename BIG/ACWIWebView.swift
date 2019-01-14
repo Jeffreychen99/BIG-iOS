@@ -192,8 +192,10 @@ class ACWIWebView: WKWebView, WKNavigationDelegate {
                 
                 var fixed = false
                 for row in data {
-                    if row[0] as! String == newDateString {
+                    if row[0] as! String == newDateString && missingACWI.count != 0 {
                         fixed = true
+                        print("i: \(i)")
+                        print("missing: \(missingACWI[i])")
                         PerformanceController.acwiArr[missingACWI[i]] = row[1] as! Double
                         print("FILLED \(ACWIDate.string(from:date)):  \(PerformanceController.acwiArr[i])")
                         break

@@ -56,6 +56,8 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
     var scrollView = UIScrollView()
     var pageControl = UIPageControl()
     
+    var noVotesYet = UILabel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.service.authorizer = GIDSignIn.sharedInstance().currentUser.authentication.fetcherAuthorizer()
@@ -310,14 +312,14 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
 
     func getVoteCalc() {
         let spreadsheetId = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Vote Calc - Spring '19!B3:M"
+        let range = "Vote Calc - Summer '19!B2:M"
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         service.executeQuery(query, delegate: self, didFinish: #selector(displayVotesWithTicket(ticket:finishedWithObject:error:)))
     }
 
     func getVoteRecord() {
         let spreadsheetId = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Record - Spring '19!B2:AR"
+        let range = "Record - Summer '19!B2:AR"
         let query = GTLRSheetsQuery_SpreadsheetsValuesGet.query(withSpreadsheetId: spreadsheetId, range:range)
         service.executeQuery(query, delegate: self, didFinish: #selector(displayRecordWithTicket(ticket:finishedWithObject:error:)))
     }
@@ -394,6 +396,16 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
             return
         }
         scrollView.contentSize = CGSize(width: width*0.94*CGFloat(recordData[0].count-1), height: 0.395*height)
+        
+        if recordData[0].count <= 1 {
+            self.noVotesYet.frame = CGRect(x: width * 0.1, y: height * 0.4, width: width * 0.8, height: height * 0.125)
+            self.noVotesYet.font =  UIFont(name: "EBGaramond08-Regular", size: 35)
+            self.noVotesYet.text = "No votes held yet"
+            self.noVotesYet.textColor = UIColor.white
+            self.noVotesYet.textAlignment = .center
+            self.view.addSubview(self.noVotesYet)
+            return
+        }
         
         for i in 1...recordData[0].count-1 {
             print(recordData[1][i] as! String)
@@ -501,7 +513,7 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
     
     func writeVote(vote: Int) {
         let sheetID = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Record%20-%Spring%20'19!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
+        let range = "Record%20-%Summer%20'19!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         //range = "Record - Summer '18!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         let requestParams = [
             "values": [ 
@@ -603,7 +615,7 @@ class VoteController: UIViewController, UIScrollViewDelegate, UITextFieldDelegat
     func changeParticipation(value: Int, option: Int) {
         // 2 == TH   3 == Memo   4 == Pitch   5 == Update
         let sheetID = "1uFzXgwJmmsAqTrkEC1mil7fAvieLgU82TAlWMDmN8wo"
-        let range = "Vote%20Calc%20-%Spring%20'19!\(numToLetter(numCol: option))\(userVoteRow + 2)"
+        let range = "Vote%20Calc%20-%Summer%20'19!\(numToLetter(numCol: option))\(userVoteRow + 2)"
         //range = "Record - Summer '18!\(numToLetter(numCol: pageControl.currentPage + 2))\(userVoteRow + 2)"
         let requestParams = [
             "values": [ 

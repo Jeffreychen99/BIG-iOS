@@ -1,9 +1,26 @@
+
+# Pod related
+/Pods
+Podfile.lock
+
+
+# Credentials (private)
 /BIG/BivioCredentials.swift
 credentials.plist
 Bundle\ Info.png
+
+
+# Image related
 /images
 icon.png
 /BIG/Assets.xcassets
 /BIG/Fonts
+
+
+# Workspace related
 BIG.xcworkspace/
-/BIG/
+BIG.xcodeproj/
+
+# Test related
+/BIGTests
+/BIGUITests

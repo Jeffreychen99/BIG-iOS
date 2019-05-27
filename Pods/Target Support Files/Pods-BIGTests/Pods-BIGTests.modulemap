@@ -1,6 +1,0 @@
-framework module Pods_BIGTests {
-  umbrella header "Pods-BIGTests-umbrella.h"
-
-  export *
-  module * { export * }
-}

@@ -534,13 +534,15 @@ class PortfolioController: UIViewController {
         completeData = result.values!
         
         for i in 0...completeData.count - 1 {
-            let ticker = (completeData[i][0] as! String)
-            print("\nROW: \(completeData[i])")
-            if ticker == "Total " {
-                break
-            }
-            if (!ticker.contains("Short") && !ticker.contains("Cash") && !ticker.contains("Total")) {
-                getBackupStockData(ticker: ticker, numStock: i)
+            if completeData[i].count > 0 {
+                let ticker = (completeData[i][0] as! String)
+                print("\nROW: \(completeData[i])")
+                if ticker == "Total " {
+                    break
+                }
+                if (!ticker.contains("Short") && !ticker.contains("Cash") && !ticker.contains("Total")) {
+                    getBackupStockData(ticker: ticker, numStock: i)
+                }
             }
         }
         
@@ -549,28 +551,30 @@ class PortfolioController: UIViewController {
         var tempShortList = [[Any]]()
 
         for row in completeData {
-            if !(row[0] as! String).contains("Cash") && !(row[0] as! String).contains("Total") {
-                if (row[0] as! String).contains("Short") {
-                    longBool = false
-                } else {
-                    if longBool {
-                        tempLongList.append(row)
+            if row.count > 0 {
+                if !(row[0] as! String).contains("Cash") && !(row[0] as! String).contains("Total") {
+                    if (row[0] as! String).contains("Short") {
+                        longBool = false
                     } else {
-                        tempShortList.append(row)
+                        if longBool {
+                            tempLongList.append(row)
+                        } else {
+                            tempShortList.append(row)
+                        }
+                        print("\(row[0] as! String): \(row[6] as! String) \n")
                     }
-                    print("\(row[0] as! String): \(row[6] as! String) \n")
                 }
-            }
-            if (row[0] as! String) == "Cash" {
-                totalCash = row[2] as! String
-            }
-            if (row[0] as! String) == "Total " {
-                totalAssets = row[2] as! String
-                dailyAUMGain = row[6] as! String
-                totalAUMGain = row[9] as! String
-                print("AUMGAIN: \(totalAUMGain)")
-                print("AUMGAIN2: \(row[10] as! String)")
-                break
+                if (row[0] as! String) == "Cash" {
+                    totalCash = row[2] as! String
+                }
+                if (row[0] as! String) == "Total " {
+                    totalAssets = row[2] as! String
+                    dailyAUMGain = row[6] as! String
+                    totalAUMGain = row[9] as! String
+                    print("AUMGAIN: \(totalAUMGain)")
+                    print("AUMGAIN2: \(row[10] as! String)")
+                    break
+                }
             }
         }
         longList = tempLongList

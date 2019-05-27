@@ -20,6 +20,8 @@ icon.png
 # Workspace related
 BIG.xcworkspace/
 BIG.xcodeproj/
+/BIG/Base.lproj
+
 
 # Test related
 /BIGTests
